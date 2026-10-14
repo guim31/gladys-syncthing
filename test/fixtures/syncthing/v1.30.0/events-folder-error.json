@@ -1,0 +1,99 @@
+[
+  {
+    "id": 126,
+    "globalID": 134,
+    "time": "2026-10-14T19:18:31.91569163Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 202.915690176,
+      "error": "folder marker missing (this indicates potential data loss, search docs/forum to get information about how to proceed)",
+      "folder": "docs",
+      "from": "idle",
+      "to": "error"
+    }
+  },
+  {
+    "id": 127,
+    "globalID": 135,
+    "time": "2026-10-14T19:18:34.950750808Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 3.950748929,
+      "folder": "docs",
+      "from": "error",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 128,
+    "globalID": 136,
+    "time": "2026-10-14T19:18:34.950782798Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.950782318,
+      "folder": "docs",
+      "from": "idle",
+      "to": "scan-waiting"
+    }
+  },
+  {
+    "id": 129,
+    "globalID": 137,
+    "time": "2026-10-14T19:18:34.950807769Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.950807478,
+      "folder": "docs",
+      "from": "scan-waiting",
+      "to": "scanning"
+    }
+  },
+  {
+    "id": 130,
+    "globalID": 138,
+    "time": "2026-10-14T19:18:34.950988097Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.950987645,
+      "folder": "docs",
+      "from": "scanning",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 131,
+    "globalID": 139,
+    "time": "2026-10-14T19:18:34.951052188Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.951051874,
+      "folder": "docs",
+      "from": "idle",
+      "to": "scan-waiting"
+    }
+  },
+  {
+    "id": 132,
+    "globalID": 140,
+    "time": "2026-10-14T19:18:34.951065573Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.951065377,
+      "folder": "docs",
+      "from": "scan-waiting",
+      "to": "scanning"
+    }
+  },
+  {
+    "id": 133,
+    "globalID": 141,
+    "time": "2026-10-14T19:18:34.951121385Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.951121208,
+      "folder": "docs",
+      "from": "scanning",
+      "to": "idle"
+    }
+  }
+]

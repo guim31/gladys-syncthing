@@ -1,0 +1,14 @@
+{
+  "alloc": 29984320,
+  "cpuPercent": 0,
+  "goroutines": 70,
+  "guiAddressOverridden": true,
+  "guiAddressUsed": "0.0.0.0:8384",
+  "myID": "P56IOI7-MZJNU2Y-IQGDREY-DM2MGTI-MGL3BXN-PQ6W5BM-TBBZ4TJ-XZWICQ2",
+  "pathSeparator": "/",
+  "startTime": "2026-10-14T19:14:38Z",
+  "sys": 43763992,
+  "tilde": "/home/user",
+  "uptime": 1088,
+  "urVersionMax": 3
+}

@@ -1,0 +1,11 @@
+{
+  "errors": [
+    {
+      "path": "2026/IMG_0100.jpg",
+      "error": "syncing: finishing: opening temp file: open /home/user/Sync/photos/2026/.syncthing.IMG_0100.jpg.tmp: operation not permitted"
+    }
+  ],
+  "folder": "photos-x7k2",
+  "page": 1,
+  "perpage": 65536
+}

@@ -1,0 +1,168 @@
+[
+  {
+    "id": 81,
+    "globalID": 89,
+    "time": "2026-10-14T19:18:22.814550404Z",
+    "type": "FolderPaused",
+    "data": {
+      "id": "photos-x7k2",
+      "label": "Photos"
+    }
+  },
+  {
+    "id": 82,
+    "globalID": 90,
+    "time": "2026-10-14T19:18:22.816615213Z",
+    "type": "ConfigSaved",
+    "data": {
+      "version": 52
+    }
+  },
+  {
+    "id": 83,
+    "globalID": 91,
+    "time": "2026-10-14T19:18:24.847989055Z",
+    "type": "StateChanged",
+    "data": {
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "starting"
+    }
+  },
+  {
+    "id": 84,
+    "globalID": 92,
+    "time": "2026-10-14T19:18:24.848000409Z",
+    "type": "FolderResumed",
+    "data": {
+      "id": "photos-x7k2",
+      "label": "Photos"
+    }
+  },
+  {
+    "id": 85,
+    "globalID": 93,
+    "time": "2026-10-14T19:18:24.849720478Z",
+    "type": "ConfigSaved",
+    "data": {
+      "version": 52
+    }
+  },
+  {
+    "id": 86,
+    "globalID": 94,
+    "time": "2026-10-14T19:18:24.849834104Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.849825485,
+      "folder": "photos-x7k2",
+      "from": "starting",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 87,
+    "globalID": 95,
+    "time": "2026-10-14T19:18:24.849874015Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.84987174,
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "scan-waiting"
+    }
+  },
+  {
+    "id": 88,
+    "globalID": 96,
+    "time": "2026-10-14T19:18:24.849882905Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.84988131,
+      "folder": "photos-x7k2",
+      "from": "scan-waiting",
+      "to": "scanning"
+    }
+  },
+  {
+    "id": 89,
+    "globalID": 97,
+    "time": "2026-10-14T19:18:24.851167537Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.851166871,
+      "folder": "photos-x7k2",
+      "from": "scanning",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 90,
+    "globalID": 98,
+    "time": "2026-10-14T19:18:26.865735446Z",
+    "type": "DevicePaused",
+    "data": {
+      "device": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ"
+    }
+  },
+  {
+    "id": 91,
+    "globalID": 99,
+    "time": "2026-10-14T19:18:26.866678986Z",
+    "type": "DeviceDisconnected",
+    "data": {
+      "error": "device is paused",
+      "id": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ"
+    }
+  },
+  {
+    "id": 92,
+    "globalID": 100,
+    "time": "2026-10-14T19:18:26.868457787Z",
+    "type": "ConfigSaved",
+    "data": {
+      "version": 52
+    }
+  },
+  {
+    "id": 93,
+    "globalID": 101,
+    "time": "2026-10-14T19:18:27.816546719Z",
+    "type": "ConfigSaved",
+    "data": {
+      "version": 52
+    }
+  },
+  {
+    "id": 94,
+    "globalID": 102,
+    "time": "2026-10-14T19:18:28.900717722Z",
+    "type": "DeviceResumed",
+    "data": {
+      "device": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ"
+    }
+  },
+  {
+    "id": 95,
+    "globalID": 103,
+    "time": "2026-10-14T19:18:28.902535442Z",
+    "type": "ConfigSaved",
+    "data": {
+      "version": 52
+    }
+  },
+  {
+    "id": 96,
+    "globalID": 104,
+    "time": "2026-10-14T19:18:28.905458609Z",
+    "type": "DeviceConnected",
+    "data": {
+      "addr": "192.0.2.20:22000",
+      "clientName": "syncthing",
+      "clientVersion": "v1.30.0",
+      "deviceName": "laptop",
+      "id": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ",
+      "type": "tcp-client"
+    }
+  }
+]

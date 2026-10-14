@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-syncthing",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "Gladys Assistant external integration for Syncthing: folders and remote devices, live through the event API.",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test"
+    "test": "node --test",
+    "test:real": "SYNCTHING_REAL=1 node --test test/real/real.test.js"
   },
   "engines": {
     "node": ">=22"

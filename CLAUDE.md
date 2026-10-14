@@ -16,8 +16,9 @@ its only runtime dependency. It started from the official JavaScript template.
 ```bash
 npm install
 npm test                                  # node --test, the built-in runner
-node --test test/devices.test.js          # one file
-node --test --test-name-pattern "plug"    # tests whose name matches
+node --test test/hub.test.js              # one file
+node --test --test-name-pattern "sync"    # tests whose name matches
+SYNCTHING_BIN=/path/to/syncthing npm run test:real   # against real Syncthing (optional)
 npm run lint                              # ESLint
 npm run format:check                      # Prettier, as the CI runs it
 npm run format                            # Prettier, fix in place
@@ -31,16 +32,24 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only: src/app.js registers the handlers before connect()
+src/app.js                        every SDK handler -> the hub (also used by the tests)
+src/hub.js                        the model of Syncthing, event loop, 30 s timer, full reloads,
+                                  transitions -> scene events, states, transports, commands
+src/devices.js                    the folder and remote-device payloads, feature keys, names (4 languages)
+src/syncthing/client.js           REST client (X-API-Key), error kinds, the event list
+src/syncthing/http.js             node:http/https request (self-signed certificates on request, abort)
+src/syncthing/model.js            pure: folder state in words, progress, short IDs, folder keys
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/widgets.js                    dashboard widget `syncthing` (manifest `widgets`)
+src/texts.js                      connection, error, state, report and action texts (4 languages)
+src/problems.js                   repeated failures logged once, and their end
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+                                  and helpers/fakeSyncthing.js (answers recorded in test/fixtures/syncthing)
+test/real/real.test.js            two real Syncthing instances, `npm run test:real` (skipped otherwise)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +79,10 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in English, French, German and Spanish: action
+  messages, widget content, feature names, folder states, manifest texts, and
+  `docs/en.md`, `docs/fr.md`, `docs/de.md`, `docs/es.md`, kept in sync
+  (`test/i18n.test.js` checks the languages, the lengths and the doc sections).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +244,50 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Syncthing (propre à cette intégration)
+
+Vérifié le 14/10/2026 sur de vrais Syncthing 1.30.0, 2.0.10 et 2.1.6 lancés dans la session (deux
+instances reliées, `npm run test:real`). Les réponses et séquences d'événements des tests unitaires
+viennent de là (`test/fixtures/syncthing/README.md`).
+
+- **API** : REST de l'interface web, en-tête `X-API-Key`. Une clé absente ou fausse donne un 403
+  « CSRF Error » ; un 403 « Host check error » vient d'une interface qui écoute sur `127.0.0.1`
+  atteinte par un nom (proxy inverse). Syncthing écoute par défaut sur `127.0.0.1:8384` : injoignable
+  depuis le conteneur, la doc fait passer l'adresse d'écoute à `0.0.0.0:8384`.
+- **Événements** : `GET /rest/events?since=…&timeout=60&events=<liste>`. Avec un filtre, Syncthing
+  tient **un abonnement par liste de types** et les `id` comptent les événements de cette liste
+  seulement (`globalID` compte tout) : la liste (`EVENT_TYPES`) ne doit pas changer d'un appel à
+  l'autre. `since=0&limit=1&timeout=0` donne le dernier id sans attendre. Après un redémarrage de
+  Syncthing, les id repartent de 1 (détecté par `startTime` de `/rest/system/status`). Un trou dans
+  les id (tampon de 1000 dépassé) déclenche une relecture complète.
+- **`ConfigSaved` porte toute la configuration de Syncthing, clé d'API comprise** : jamais journalisé
+  ni gardé, et coupé dans les fixtures. Syncthing en émet deux à ~5 s d'écart pour un changement :
+  relecture après 10 s de calme.
+- **`/rest/db/status` est coûteux** (doc Syncthing) : lu au démarrage, après `ConfigSaved` et toutes
+  les 5 min ; entre-temps les `FolderSummary` (toutes les 2 à 6 s pendant une synchro) le remplacent.
+- **États d'un dossier** : un dossier en pause répond `state: ""` ; « Failed Items » de l'interface,
+  c'est `idle` avec `errors`/`pullErrors` > 0 ; `starting`, `scan-waiting`, `sync-preparing`,
+  `clean-waiting` existent. Pendant les nouvelles tentatives (chaque minute), l'état repasse par
+  `sync-preparing` avec l'ancien résumé : le déclencheur « Erreur de synchronisation » ne se réarme
+  que quand les éléments en échec retombent à 0.
+- **Fin de synchro** : `StateChanged → idle` arrive avant le `FolderSummary` final ; « Dossier
+  synchronisé » n'est décidé que sur un résumé frais (`closing`), sinon un échec partiel donnerait
+  « synchronisé » puis « erreur ». Un aller-retour `sync-preparing → idle` sans fichier ni besoin
+  (mise à jour d'index) ne déclenche rien.
+- **Débits** : aucun événement ne les donne ; `inBytesTotal`/`outBytesTotal` de
+  `/rest/system/connections`, deux lectures à 30 s. Le compteur repart de 0 à chaque connexion.
+- **Appareil distant** : `/rest/config/devices` inclut ce Syncthing lui-même (à exclure par `myID`) ;
+  « jamais vu » vaut `1970-01-01T00:00:00Z` dans `/rest/stats/device`.
+- **HTTPS** : `--gui-address=https://…` donne un certificat auto-signé (`DEPTH_ZERO_SELF_SIGNED_CERT`),
+  et `http://` sur ce port répond 307 vers `https://`. Vérifié dans un conteneur aux contraintes du bac
+  à sable (`--read-only --cap-drop ALL --memory 256m`, réseau en pont) : 73 Mo.
+- **Syncthing 1.x crée un « Default Folder »** dans un nouveau répertoire, malgré
+  `STNODEFAULTFOLDER` : le test réel le supprime.
+- **Libellés du front** : le front compare le seul `type` pour décider si une fonctionnalité est
+  « seule de son type » (`front/src/utils/device.js`). Progression (`liquid-level-percent`), reste à
+  recevoir (`size`), éléments en échec et heures hors ligne (`integer`) s'affichent donc avec le nom
+  de l'appareil ; les deux binaires (`À jour`/`En pause`, `Connecté`/`En pause`) gardent leur nom.
+- Pas de déclencheur « appareil hors ligne depuis N heures » : la fonctionnalité numérique
+  « Hors ligne depuis » et le seuil du déclencheur d'état du cœur le couvrent (la spec réserve
+  seuils et durées aux fonctionnalités).

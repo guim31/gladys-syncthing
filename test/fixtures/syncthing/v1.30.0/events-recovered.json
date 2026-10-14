@@ -1,0 +1,197 @@
+[
+  {
+    "id": 216,
+    "globalID": 225,
+    "time": "2026-10-14T19:31:27.9007937Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 11.90079211,
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "scan-waiting"
+    }
+  },
+  {
+    "id": 217,
+    "globalID": 226,
+    "time": "2026-10-14T19:31:27.900816392Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.90081615,
+      "folder": "photos-x7k2",
+      "from": "scan-waiting",
+      "to": "scanning"
+    }
+  },
+  {
+    "id": 218,
+    "globalID": 227,
+    "time": "2026-10-14T19:31:27.901461632Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.90146126,
+      "folder": "photos-x7k2",
+      "from": "scanning",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 219,
+    "globalID": 228,
+    "time": "2026-10-14T19:31:48.111403449Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 21.11140188,
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "scan-waiting"
+    }
+  },
+  {
+    "id": 220,
+    "globalID": 229,
+    "time": "2026-10-14T19:31:48.111451621Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.111451365,
+      "folder": "photos-x7k2",
+      "from": "scan-waiting",
+      "to": "scanning"
+    }
+  },
+  {
+    "id": 221,
+    "globalID": 230,
+    "time": "2026-10-14T19:31:48.112191772Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.112191281,
+      "folder": "photos-x7k2",
+      "from": "scanning",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 222,
+    "globalID": 231,
+    "time": "2026-10-14T19:32:16.11909843Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 28.119096955,
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "sync-waiting"
+    }
+  },
+  {
+    "id": 223,
+    "globalID": 232,
+    "time": "2026-10-14T19:32:16.119193349Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.119193036,
+      "folder": "photos-x7k2",
+      "from": "sync-waiting",
+      "to": "sync-preparing"
+    }
+  },
+  {
+    "id": 225,
+    "globalID": 234,
+    "time": "2026-10-14T19:32:16.119631494Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.119630896,
+      "folder": "photos-x7k2",
+      "from": "sync-preparing",
+      "to": "syncing"
+    }
+  },
+  {
+    "id": 226,
+    "globalID": 235,
+    "time": "2026-10-14T19:32:16.124847533Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "2026/IMG_0100.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 228,
+    "globalID": 238,
+    "time": "2026-10-14T19:32:16.125645284Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.125644781,
+      "folder": "photos-x7k2",
+      "from": "syncing",
+      "to": "sync-preparing"
+    }
+  },
+  {
+    "id": 229,
+    "globalID": 239,
+    "time": "2026-10-14T19:32:16.125735283Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.125735027,
+      "folder": "photos-x7k2",
+      "from": "sync-preparing",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 230,
+    "globalID": 240,
+    "time": "2026-10-14T19:32:16.125772707Z",
+    "type": "FolderSummary",
+    "data": {
+      "folder": "photos-x7k2",
+      "summary": {
+        "errors": 0,
+        "pullErrors": 0,
+        "invalid": "",
+        "globalFiles": 8,
+        "globalDirectories": 2,
+        "globalSymlinks": 0,
+        "globalDeleted": 0,
+        "globalBytes": 91500264,
+        "globalTotalItems": 10,
+        "localFiles": 8,
+        "localDirectories": 2,
+        "localSymlinks": 0,
+        "localDeleted": 0,
+        "localBytes": 91500264,
+        "localTotalItems": 10,
+        "needFiles": 0,
+        "needDirectories": 0,
+        "needSymlinks": 0,
+        "needDeletes": 0,
+        "needBytes": 0,
+        "needTotalItems": 0,
+        "receiveOnlyChangedFiles": 0,
+        "receiveOnlyChangedDirectories": 0,
+        "receiveOnlyChangedSymlinks": 0,
+        "receiveOnlyChangedDeletes": 0,
+        "receiveOnlyChangedBytes": 0,
+        "receiveOnlyTotalItems": 0,
+        "inSyncFiles": 8,
+        "inSyncBytes": 91500264,
+        "state": "idle",
+        "stateChanged": "2026-10-14T19:32:16Z",
+        "error": "",
+        "version": 10,
+        "sequence": 10,
+        "remoteSequence": {
+          "P56IOI7-MZJNU2Y-IQGDREY-DM2MGTI-MGL3BXN-PQ6W5BM-TBBZ4TJ-XZWICQ2": 19
+        },
+        "ignorePatterns": false,
+        "watchError": ""
+      }
+    }
+  }
+]

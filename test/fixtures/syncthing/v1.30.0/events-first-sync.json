@@ -1,0 +1,249 @@
+[
+  {
+    "id": 43,
+    "globalID": 43,
+    "time": "2026-10-14T19:17:17.867063782Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 5.8670623939999995,
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "sync-waiting"
+    }
+  },
+  {
+    "id": 44,
+    "globalID": 44,
+    "time": "2026-10-14T19:17:17.867134761Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.867134385,
+      "folder": "photos-x7k2",
+      "from": "sync-waiting",
+      "to": "sync-preparing"
+    }
+  },
+  {
+    "id": 46,
+    "globalID": 46,
+    "time": "2026-10-14T19:17:17.867303489Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "2026",
+      "type": "dir"
+    }
+  },
+  {
+    "id": 48,
+    "globalID": 48,
+    "time": "2026-10-14T19:17:17.867565759Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "2026/vacances",
+      "type": "dir"
+    }
+  },
+  {
+    "id": 52,
+    "globalID": 52,
+    "time": "2026-10-14T19:17:17.868658758Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.868657787,
+      "folder": "photos-x7k2",
+      "from": "sync-preparing",
+      "to": "syncing"
+    }
+  },
+  {
+    "id": 54,
+    "globalID": 54,
+    "time": "2026-10-14T19:17:18.178379167Z",
+    "type": "FolderSummary",
+    "data": {
+      "folder": "photos-x7k2",
+      "summary": {
+        "errors": 0,
+        "pullErrors": 0,
+        "invalid": "",
+        "globalFiles": 4,
+        "globalDirectories": 2,
+        "globalSymlinks": 0,
+        "globalDeleted": 0,
+        "globalBytes": 60000262,
+        "globalTotalItems": 6,
+        "localFiles": 0,
+        "localDirectories": 0,
+        "localSymlinks": 0,
+        "localDeleted": 0,
+        "localBytes": 0,
+        "localTotalItems": 0,
+        "needFiles": 4,
+        "needDirectories": 2,
+        "needSymlinks": 0,
+        "needDeletes": 0,
+        "needBytes": 10065619,
+        "needTotalItems": 6,
+        "receiveOnlyChangedFiles": 0,
+        "receiveOnlyChangedDirectories": 0,
+        "receiveOnlyChangedSymlinks": 0,
+        "receiveOnlyChangedDeletes": 0,
+        "receiveOnlyChangedBytes": 0,
+        "receiveOnlyTotalItems": 0,
+        "inSyncFiles": 0,
+        "inSyncBytes": 49934643,
+        "state": "syncing",
+        "stateChanged": "2026-10-14T19:17:17Z",
+        "error": "",
+        "version": 0,
+        "sequence": 0,
+        "remoteSequence": {
+          "P56IOI7-MZJNU2Y-IQGDREY-DM2MGTI-MGL3BXN-PQ6W5BM-TBBZ4TJ-XZWICQ2": 6
+        },
+        "ignorePatterns": false,
+        "watchError": ""
+      }
+    }
+  },
+  {
+    "id": 56,
+    "globalID": 56,
+    "time": "2026-10-14T19:17:18.201401742Z",
+    "type": "ConfigSaved",
+    "data": {
+      "version": 37
+    }
+  },
+  {
+    "id": 57,
+    "globalID": 57,
+    "time": "2026-10-14T19:17:18.20211186Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "notes.txt",
+      "type": "file"
+    }
+  },
+  {
+    "id": 58,
+    "globalID": 58,
+    "time": "2026-10-14T19:17:18.227965652Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "2026/vacances/IMG_0002.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 59,
+    "globalID": 59,
+    "time": "2026-10-14T19:17:18.244250921Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "2026/vacances/IMG_0003.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 60,
+    "globalID": 60,
+    "time": "2026-10-14T19:17:18.260870834Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": null,
+      "folder": "photos-x7k2",
+      "item": "2026/vacances/IMG_0001.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 62,
+    "globalID": 68,
+    "time": "2026-10-14T19:17:18.262095187Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 1.262094695,
+      "folder": "photos-x7k2",
+      "from": "syncing",
+      "to": "sync-preparing"
+    }
+  },
+  {
+    "id": 63,
+    "globalID": 69,
+    "time": "2026-10-14T19:17:18.262187342Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.262187119,
+      "folder": "photos-x7k2",
+      "from": "sync-preparing",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 64,
+    "globalID": 70,
+    "time": "2026-10-14T19:17:18.262231829Z",
+    "type": "FolderSummary",
+    "data": {
+      "folder": "photos-x7k2",
+      "summary": {
+        "errors": 0,
+        "pullErrors": 0,
+        "invalid": "",
+        "globalFiles": 4,
+        "globalDirectories": 2,
+        "globalSymlinks": 0,
+        "globalDeleted": 0,
+        "globalBytes": 60000262,
+        "globalTotalItems": 6,
+        "localFiles": 4,
+        "localDirectories": 2,
+        "localSymlinks": 0,
+        "localDeleted": 0,
+        "localBytes": 60000262,
+        "localTotalItems": 6,
+        "needFiles": 0,
+        "needDirectories": 0,
+        "needSymlinks": 0,
+        "needDeletes": 0,
+        "needBytes": 0,
+        "needTotalItems": 0,
+        "receiveOnlyChangedFiles": 0,
+        "receiveOnlyChangedDirectories": 0,
+        "receiveOnlyChangedSymlinks": 0,
+        "receiveOnlyChangedDeletes": 0,
+        "receiveOnlyChangedBytes": 0,
+        "receiveOnlyTotalItems": 0,
+        "inSyncFiles": 4,
+        "inSyncBytes": 60000262,
+        "state": "idle",
+        "stateChanged": "2026-10-14T19:17:18Z",
+        "error": "",
+        "version": 6,
+        "sequence": 6,
+        "remoteSequence": {
+          "P56IOI7-MZJNU2Y-IQGDREY-DM2MGTI-MGL3BXN-PQ6W5BM-TBBZ4TJ-XZWICQ2": 6
+        },
+        "ignorePatterns": false,
+        "watchError": ""
+      }
+    }
+  }
+]

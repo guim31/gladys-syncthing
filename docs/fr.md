@@ -1,67 +1,222 @@
-# Template de démonstration
+# Syncthing
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+[Syncthing](https://syncthing.net/) garde des dossiers synchronisés entre vos
+ordinateurs, téléphones et NAS, de pair à pair, sans cloud. Cette intégration
+l'amène dans Gladys : chaque dossier devient un appareil qui dit s'il est à
+jour, sa progression et ses erreurs, avec un interrupteur pour le mettre en
+pause ; chaque appareil distant (portable, téléphone, autre NAS) dit s'il est
+connecté, ses débits et depuis combien de temps il est absent. Des scènes
+peuvent réagir quand un dossier finit de se synchroniser ou échoue, et un
+widget du tableau de bord résume le tout.
 
-## Ce que vous obtenez
+Testée sur de vrais Syncthing 1.30.0, 2.0.10 et 2.1.6 (deux instances
+reliées) ; pas encore dans toutes les installations : vos retours sont les
+bienvenus sur [les issues](https://github.com/guim31/gladys-syncthing/issues).
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+## Ce qu'il vous faut
 
-## Configuration
+- Gladys Assistant 5.1.0 ou plus récent.
+- Syncthing 1.12 ou plus récent (testé en 1.30 et 2.x), sur une machine que
+  Gladys peut joindre sur le réseau local : en général votre NAS ou votre
+  serveur.
+- La clé d'API de ce Syncthing.
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+L'intégration suit **un** Syncthing : celui de votre serveur. Vos autres
+appareils apparaissent comme ses appareils distants, vous n'installez rien
+dessus.
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+## Mise en route
 
-## Actions
+### 1. Préparer Syncthing
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+Dans l'interface web de Syncthing, ouvrez **Actions → Configuration → GUI** :
 
-## Scènes
+- copiez la **clé d'API** ;
+- réglez l'**adresse d'écoute de l'interface** sur `0.0.0.0:8384`. Par
+  défaut, Syncthing ne répond que sur `127.0.0.1`, que Gladys ne peut pas
+  joindre depuis son propre conteneur. L'interface étant ouverte au réseau,
+  définissez un **utilisateur** et un mot de passe pour l'interface si ce
+  n'est pas déjà fait : la clé d'API reste valable pour Gladys.
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+Syncthing dans Docker (linuxserver, image officielle) : publiez le port 8384
+et gardez l'adresse d'écoute de l'image (`0.0.0.0:8384`).
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+### 2. Configurer l'intégration
+
+Dans Gladys, **Intégrations → Syncthing → Configuration** :
+
+- **Adresse de Syncthing** : par exemple `http://192.168.1.10:8384`. Une
+  simple adresse IP fonctionne aussi (`http://` et le port 8384 sont ajoutés).
+- **Clé d'API** : la clé de l'étape 1.
+- **Accepter les certificats auto-signés** : seulement pour une adresse en
+  `https://`, quand l'interface utilise le certificat généré par Syncthing
+  (« Utiliser HTTPS pour l'interface »).
+- **Langue des noms** : la langue des noms de fonctionnalités et des états des
+  dossiers (français par défaut).
+
+Enregistrez, puis cliquez sur **Tester la connexion** : Syncthing répond avec
+sa version, ses dossiers et ses appareils distants.
+
+### 3. Ajouter les dossiers et appareils
+
+Ouvrez l'onglet **Découverte** : chaque dossier et chaque appareil distant de
+Syncthing y est proposé. Ajoutez ceux que vous voulez voir dans Gladys ; rien
+n'est ajouté à votre place. Un dossier ou un appareil ajouté plus tard dans
+Syncthing y apparaît de lui-même.
+
+## L'appareil de chaque dossier
+
+| Fonctionnalité              | Valeur                                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| État                        | À jour, Synchronisation, Analyse, Désynchronisé, Erreur, En pause                  |
+| À jour                      | Allumé quand le dossier a tout, éteint sinon (rien pendant une pause)              |
+| Progression                 | La part du dossier que ce Syncthing détient, en pourcentage                        |
+| Reste à recevoir            | Ce qu'il reste à télécharger, en mégaoctets                                        |
+| Éléments en échec           | Les fichiers que Syncthing n'a pas pu synchroniser (« Éléments en échec »)         |
+| Dernier fichier synchronisé | Le dernier fichier reçu (suivi de « (supprimé) » pour une suppression)             |
+| En pause                    | Un interrupteur : allumé met le dossier en pause dans Syncthing, éteint le reprend |
+
+« Désynchronisé » veut dire qu'il manque quelque chose au dossier mais que
+rien n'arrive : l'appareil qui l'a est hors ligne. « Erreur » couvre à la fois
+un dossier arrêté sur une erreur (marqueur de dossier absent, disque plein) et
+des éléments en échec.
+
+Pendant une synchronisation, la progression, les mégaoctets restants et le
+dernier fichier sont envoyés à Gladys au plus toutes les 30 secondes, leur
+dernière valeur toujours : une grosse synchronisation reste loin des 300
+valeurs par minute que Gladys accepte.
+
+## L'appareil de chaque appareil distant
+
+| Fonctionnalité    | Valeur                                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| Connecté          | Allumé tant que l'appareil est connecté à votre Syncthing                                           |
+| En pause          | Un interrupteur : allumé met l'appareil en pause dans Syncthing (plus d'échange), éteint le reprend |
+| Réception         | Ce que votre Syncthing reçoit de lui, en ko/s                                                       |
+| Envoi             | Ce que votre Syncthing lui envoie, en ko/s                                                          |
+| Hors ligne depuis | Les heures depuis la dernière fois qu'il a été vu (0 tant qu'il est connecté)                       |
+
+« Hors ligne depuis » est un nombre : un déclencheur de scène sur cet appareil
+« supérieur à 24 » répond à « mon portable ne s'est pas synchronisé depuis un
+jour » sans rien d'autre.
 
 ## Tableau de bord
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+Ajoutez le widget **Syncthing** à un tableau de bord. Il affiche :
+
+- les **dossiers à jour** (par exemple `2/3`, en rouge quand l'un est en
+  erreur) ;
+- les **appareils connectés**, et les débits totaux de **réception** et
+  d'**envoi** ;
+- une ligne par dossier et par appareil distant, les problèmes d'abord :
+  dossiers en erreur, désynchronisés, appareils hors ligne (depuis combien de
+  temps), puis en synchronisation (avec le pourcentage), en pause, à jour —
+  dix lignes au plus, puis le nombre des autres ;
+- trois boutons : **Analyser** (tous les dossiers), **Tout suspendre**
+  (demande confirmation) et **Tout reprendre**, selon l'état des dossiers.
+
+Le widget montre tous les dossiers et appareils de Syncthing, ajoutés à
+Gladys ou non. Dans ses réglages, **Afficher** ne garde que les dossiers ou
+que les appareils.
+
+## Scènes
+
+### Déclencheurs
+
+Ils valent pour tous les dossiers, ajoutés à Gladys ou non. Laissez
+**Dossier** vide pour réagir à n'importe lequel, ou choisissez-en un.
+
+- **Dossier synchronisé** : un dossier a reçu ce qui lui manquait et est de
+  nouveau à jour. Seul un vrai transfert compte : les analyses et les mises à
+  jour d'index ne le déclenchent jamais. Variables : nom du dossier, fichiers
+  reçus.
+- **Erreur de synchronisation** : un dossier s'est arrêté sur une erreur, ou
+  certains de ses fichiers n'ont pas pu être synchronisés. Une fois par
+  problème : Syncthing réessaie chaque minute, le déclencheur ne se répète pas
+  tant que le dossier n'est pas redevenu propre. Variables : nom du dossier,
+  éléments en échec, message d'erreur (la raison donnée par Syncthing, avec le
+  fichier).
+
+La première lecture après un démarrage ne fait que prendre note : un dossier
+déjà en échec au démarrage de Gladys ne déclenche rien.
+
+### Actions
+
+- **Mettre des dossiers en pause** : met en pause un dossier, ou tous quand
+  **Dossier** est vide. Résultat : le nombre de dossiers mis en pause.
+- **Reprendre des dossiers** : reprend un dossier en pause, ou tous. Résultat :
+  le nombre de dossiers repris.
+- **Analyser des dossiers** : demande à Syncthing de chercher les changements
+  maintenant, dans un dossier ou dans tous (une longue analyse continue après
+  l'action). Résultat : le nombre de dossiers analysés.
+
+Rien ici ne supprime quoi que ce soit : un dossier en pause garde ses fichiers
+et reprend là où il s'était arrêté.
+
+### Idées de scènes
+
+- **Photos sauvegardées** : déclencheur « Dossier synchronisé » sur le dossier
+  Photos → envoyer un message « 📷 … photos reçues sur le NAS », en insérant
+  « Fichiers reçus ».
+- **Quelque chose ne va pas** : déclencheur « Erreur de synchronisation »
+  (Dossier vide) → envoyer un message « ⚠️ … : … » avec « Nom du dossier » et
+  « Message d'erreur ».
+- **Visio tranquille** : une scène lancée depuis un bouton du tableau de bord
+  → « Mettre des dossiers en pause » (Dossier vide) ; une seconde, ou une
+  attente d'une heure → « Reprendre des dossiers ».
+- **Portable oublié** : déclencheur sur l'appareil « portable »,
+  fonctionnalité « Hors ligne depuis », supérieur à 72 → envoyer un message
+  « Le portable ne s'est pas synchronisé depuis trois jours ».
+
+## Comment l'intégration lit Syncthing
+
+- **En direct** : l'API d'événements de Syncthing (`/rest/events`, une requête
+  tenue ouverte jusqu'à ce qu'il se passe quelque chose) apporte les états des
+  dossiers, la progression, les fichiers reçus, les erreurs, les pauses et les
+  appareils qui se connectent ou s'en vont.
+- **Toutes les 30 secondes** : les connexions (pour les débits, qu'aucun
+  événement ne donne) et la dernière fois que chaque appareil a été vu.
+- **Toutes les 5 minutes**, et après un changement de la configuration de
+  Syncthing : tout, par sécurité. Le résumé d'un dossier est le seul appel que
+  la documentation de Syncthing dit coûteux sur les gros dossiers : il est lu
+  aussi rarement. Si l'API d'événements ne fonctionne pas (un proxy qui coupe
+  les longues requêtes), tout est relu toutes les 30 secondes à la place.
+
+Syncthing ne fixe aucun quota de requêtes sur son API. L'intégration n'écrit
+que quand vous le demandez : pause, reprise, analyse.
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+- **« Syncthing ne répond pas »** : vérifiez l'adresse et le port depuis la
+  machine de Gladys, et que l'adresse d'écoute de l'interface est
+  `0.0.0.0:8384` (étape 1). `localhost` désigne le conteneur de l'intégration
+  lui-même : utilisez l'adresse IP de la machine qui fait tourner Syncthing.
+- **« Clé d'API refusée »** : recopiez la clé depuis Actions → Configuration →
+  GUI (elle change quand on clique sur « Générer »).
+- **« Syncthing refuse ce nom d'hôte »** : l'interface écoute sur `127.0.0.1`
+  derrière un proxy inverse : utilisez l'adresse IP, ou ouvrez l'interface sur
+  `0.0.0.0`.
+- **« Certificat refusé »** : l'interface est en HTTPS avec son propre
+  certificat ; cochez « Accepter les certificats auto-signés ».
+- **« L'adresse redirige »** : l'interface est en HTTPS : saisissez
+  `https://`.
+- **« Aucun Syncthing à cette adresse »** : un autre service répond sur ce
+  port.
+- **Un dossier reste « Désynchronisé »** : l'appareil qui a les fichiers
+  manquants est hors ligne ; il rattrape son retard à son retour.
+- **« Tester la connexion » dit que le suivi en direct est indisponible** : un
+  proxy entre Gladys et Syncthing coupe les requêtes tenues ouvertes ;
+  l'intégration fonctionne quand même, relue toutes les 30 secondes.
+
+## Limites
+
+- Un seul Syncthing par intégration : celui que Gladys joint.
+- La progression et les débits sont rafraîchis toutes les 30 secondes au plus.
+- « Dossier synchronisé » se déclenche sur le Syncthing qui reçoit les
+  fichiers : sur celui qui les envoie (un portable qui envoie ses photos au
+  NAS), il ne se déclenche pas.
+- Les motifs d'exclusion, les versions, les conflits et le partage des
+  dossiers restent dans l'interface de Syncthing ; l'intégration ne supprime
+  jamais un fichier.
+- Gladys fige les noms des fonctionnalités à la création : changer la langue
+  ensuite ne change que les états des dossiers et les appareils ajoutés après.
