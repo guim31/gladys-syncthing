@@ -1,6 +1,6 @@
 {
   "name": "gladys-syncthing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Gladys Assistant external integration for Syncthing: folders and remote devices, live through the event API.",
   "type": "module",

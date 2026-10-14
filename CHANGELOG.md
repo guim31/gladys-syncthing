@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-14
+
 ### Added
 
 - Follow a Syncthing (1.12 or later, tested on 1.30 and 2.x) from Gladys,
@@ -29,4 +31,5 @@ the notes of the version's GitHub Release.
 - "Test the connection" button and a connection status saying what is wrong.
 - Texts and documentation in English, French, German and Spanish.
 
-[Unreleased]: https://github.com/guim31/gladys-syncthing/commits/main
+[Unreleased]: https://github.com/guim31/gladys-syncthing/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-syncthing/releases/tag/v1.0.1
