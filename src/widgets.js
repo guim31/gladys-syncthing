@@ -1,169 +1,321 @@
 // -----------------------------------------------------------------------------
-// Dashboard widgets (SDK v0.14+, Gladys 5.1+).
+// Dashboard widget (manifest `widgets`, Gladys 5.1+): `syncthing`.
 //
-// A widget puts the integration's own data on the Gladys dashboard without a
-// dedicated core widget. The manifest `widgets` field declares its identity
-// (key, label, icon, optional per-instance `settings`); at runtime the
-// integration returns a DECLARATIVE content — `text`, `value`, `gauge`,
-// `status`, `chart`, `card-list`, `image`, `button` — that the core renders
-// with its own theme, dark mode and translations. No HTML, no CSS.
+// The use case: a glance at the wall tablet tells whether everything is in
+// sync, and which folder or device is not. So the widget shows the folders up
+// to date, the devices connected, the transfer rates, and one row per folder
+// and device — the problems first — with the state in words. Three buttons:
+// rescan every folder, pause every folder, resume them.
 //
-// Each entry of WIDGETS is keyed by the widget `key` and exposes:
-//   - get(gladys, { settings, language, units, config }): the content,
-//     registered by index.js with `gladys.onWidgetGet(key, ...)`;
-//   - action(gladys, { actionKey, params, settings, config }) (optional): a
-//     tapped `button` carrying an `action`, registered with
-//     `gladys.onWidgetAction`.
+// Every folder and device of Syncthing, added to Gladys or not; the settings
+// pick folders only or devices only. The figures are sent as values, not
+// bound to device features: the widget works before any device is added.
 //
-// Check your contents in the tests with `validateWidgetContent` (exported by
-// the SDK, see test/widgets.test.js), or run with DEBUG=gladys-integration-sdk
-// to have the SDK log every violation of the vocabulary and the budget.
+// Budget (8 components, 6 tiles, 2 texts, 1 status, 4 buttons): four tiles at
+// most, one text when Syncthing does not answer, one status list of ten rows,
+// three buttons with distinct action keys.
 // -----------------------------------------------------------------------------
 
+import { WIDGET_COLORS } from '@gladysassistant/integration-sdk';
+import { WIDGET_KEY } from './hub.js';
+import { FOLDER_STATES, completion, folderState } from './syncthing/model.js';
 import {
-  createLogger,
-  DEVICE_FEATURE_CATEGORIES,
-  DEVICE_TRANSPORTS,
-  WIDGET_COLORS,
-} from '@gladysassistant/integration-sdk';
-import { identifyDevice } from './devices/index.js';
-import { weatherStation } from './devices/weatherStation.js';
-import { plug } from './devices/plug.js';
-import { light } from './devices/light.js';
+  CONNECTION_TEXT,
+  DEVICE_STATE_TEXT,
+  ERROR_TEXT,
+  FOLDER_STATE_TEXT,
+  OFFLINE_TEXT,
+  pick,
+} from './texts.js';
 
-const logger = createLogger({ name: 'widgets' });
+// Action keys of the buttons: permanent once published.
+export const ACTIONS = Object.freeze({ RESCAN: 'rescan', PAUSE: 'pause', RESUME: 'resume' });
 
-// Widget key, as declared in the manifest `widgets` field.
-export const DEMO_STATUS_WIDGET = 'demo_status';
+// Values of the "show" setting.
+export const SHOW = Object.freeze({ ALL: 'all', FOLDERS: 'folders', DEVICES: 'devices' });
 
-// Keys of the `button` actions the demo_status content declares.
-const DEMO_STATUS_ACTIONS = { IDENTIFY_LIGHT: 'identify_light' };
+export const MAX_ROWS = 10;
 
-// How the plug transport reads in the status list.
-const TRANSPORT_STATUS = {
-  [DEVICE_TRANSPORTS.LOCAL]: { value: { en: 'Local', fr: 'Locale' }, color: WIDGET_COLORS.SUCCESS },
-  [DEVICE_TRANSPORTS.CLOUD]: { value: { en: 'Cloud', fr: 'Cloud' }, color: WIDGET_COLORS.INFO },
-  [DEVICE_TRANSPORTS.UNREACHABLE]: {
-    value: { en: 'Unreachable', fr: 'Injoignable' },
-    color: WIDGET_COLORS.DANGER,
+export const TEXT = {
+  empty: {
+    en: 'No folder and no remote device in Syncthing yet.',
+    fr: 'Aucun dossier ni appareil distant dans Syncthing pour le moment.',
+    de: 'Noch kein Ordner und kein entferntes Gerät in Syncthing.',
+    es: 'Todavía no hay carpetas ni dispositivos remotos en Syncthing.',
+  },
+  folders: {
+    en: 'Folders up to date',
+    fr: 'Dossiers à jour',
+    de: 'Ordner aktuell',
+    es: 'Carpetas al día',
+  },
+  devices: {
+    en: 'Devices connected',
+    fr: 'Appareils connectés',
+    de: 'Geräte verbunden',
+    es: 'Equipos conectados',
+  },
+  download: { en: 'Download', fr: 'Réception', de: 'Download', es: 'Descarga' },
+  upload: { en: 'Upload', fr: 'Envoi', de: 'Upload', es: 'Subida' },
+  kbps: { en: 'kB/s', fr: 'ko/s', de: 'kB/s', es: 'kB/s' },
+  mbps: { en: 'MB/s', fr: 'Mo/s', de: 'MB/s', es: 'MB/s' },
+  more: { en: 'Others', fr: 'Autres', de: 'Weitere', es: 'Otros' },
+  rescan: { en: 'Rescan', fr: 'Analyser', de: 'Neu scannen', es: 'Analizar' },
+  pause: { en: 'Pause all', fr: 'Tout suspendre', de: 'Alle pausieren', es: 'Pausar todo' },
+  resume: { en: 'Resume all', fr: 'Tout reprendre', de: 'Alle fortsetzen', es: 'Reanudar todo' },
+};
+
+// Toasts of the buttons.
+export const TOAST_TEXT = {
+  en: {
+    rescan: (n) => `Rescan asked for ${n} folder(s).`,
+    pause: (n) => `${n} folder(s) paused.`,
+    resume: (n) => `${n} folder(s) resumed.`,
+  },
+  fr: {
+    rescan: (n) => `Analyse demandée pour ${n} dossier(s).`,
+    pause: (n) => `${n} dossier(s) en pause.`,
+    resume: (n) => `${n} dossier(s) repris.`,
+  },
+  de: {
+    rescan: (n) => `Neuer Scan für ${n} Ordner angefordert.`,
+    pause: (n) => `${n} Ordner pausiert.`,
+    resume: (n) => `${n} Ordner fortgesetzt.`,
+  },
+  es: {
+    rescan: (n) => `Análisis solicitado para ${n} carpeta(s).`,
+    pause: (n) => `${n} carpeta(s) en pausa.`,
+    resume: (n) => `${n} carpeta(s) reanudada(s).`,
   },
 };
 
-// A live tile references a feature by its external_id: read it from the
-// discovery payload itself, so the widget and the device never disagree.
-function featureExternalId(gladys, config, blueprint, category) {
-  const device = blueprint.buildDevice(gladys, config);
-  return device.features.find((feature) => feature.category === category).external_id;
+// Row order: what needs attention first.
+const SEVERITY = [
+  'folder:error',
+  'folder:out_of_sync',
+  'device:disconnected',
+  'folder:unknown',
+  'folder:syncing',
+  'folder:scanning',
+  'device:never',
+  'folder:paused',
+  'device:paused',
+  'folder:up_to_date',
+  'device:connected',
+];
+
+const ROW_STYLE = {
+  'folder:up_to_date': { icon: 'check-circle', color: WIDGET_COLORS.SUCCESS },
+  'folder:syncing': { icon: 'refresh-cw', color: WIDGET_COLORS.INFO },
+  'folder:scanning': { icon: 'search', color: WIDGET_COLORS.INFO },
+  'folder:out_of_sync': { icon: 'alert-circle', color: WIDGET_COLORS.WARNING },
+  'folder:error': { icon: 'x-circle', color: WIDGET_COLORS.DANGER },
+  'folder:paused': { icon: 'pause-circle', color: WIDGET_COLORS.NEUTRAL },
+  'folder:unknown': { icon: 'help-circle', color: WIDGET_COLORS.NEUTRAL },
+  'device:connected': { icon: 'link', color: WIDGET_COLORS.SUCCESS },
+  'device:disconnected': { icon: 'wifi-off', color: WIDGET_COLORS.WARNING },
+  'device:never': { icon: 'help-circle', color: WIDGET_COLORS.NEUTRAL },
+  'device:paused': { icon: 'pause-circle', color: WIDGET_COLORS.NEUTRAL },
+};
+
+const t = (text, language) => pick(text, language);
+const fit = (text, max) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
+
+function message(text, language, ttl = 300) {
+  return {
+    ttl_seconds: ttl,
+    components: [{ type: 'text', variant: 'body', text: t(text, language) }],
+  };
 }
 
-function plugConnectionStatus(gladys, config) {
-  const { transport, degraded } = plug.transport(gladys, config);
-  const { value, color } = TRANSPORT_STATUS[transport];
-  if (degraded) {
-    return {
-      value: { en: `${value.en} (degraded mode)`, fr: `${value.fr} (mode dégradé)` },
-      color: WIDGET_COLORS.WARNING,
-    };
+/** How long a remote device has been offline, in words. */
+export function offlineText(hours, language) {
+  const text = OFFLINE_TEXT[language] ?? OFFLINE_TEXT.en;
+  return hours >= 48 ? text.days(Math.floor(hours / 24)) : text.hours(hours);
+}
+
+/** The rows of the status list, sorted (problems first). */
+export function buildRows(hub, show, language) {
+  const rows = [];
+  if (show !== SHOW.DEVICES) {
+    for (const folder of hub.folders.values()) {
+      const status = folderState(folder);
+      let value = t(FOLDER_STATE_TEXT[status], language);
+      const percent = completion(folder.summary);
+      if (status === FOLDER_STATES.SYNCING && percent !== null && percent < 100) {
+        value = `${value} · ${percent} %`;
+      }
+      rows.push({ kind: `folder:${status}`, name: folder.name, value });
+    }
   }
-  return { value, color };
+  if (show !== SHOW.FOLDERS) {
+    const now = hub.now();
+    for (const peer of hub.peers.values()) {
+      let kind;
+      let value;
+      if (peer.paused) {
+        kind = 'device:paused';
+        value = t(DEVICE_STATE_TEXT.paused, language);
+      } else if (peer.connected) {
+        kind = 'device:connected';
+        value = t(DEVICE_STATE_TEXT.connected, language);
+      } else if (peer.lastSeen === null) {
+        kind = 'device:never';
+        value = t(DEVICE_STATE_TEXT.never, language);
+      } else {
+        kind = 'device:disconnected';
+        const hours = Math.max(0, Math.floor((now - peer.lastSeen) / 3_600_000));
+        value =
+          hours < 1 ? t(DEVICE_STATE_TEXT.disconnected, language) : offlineText(hours, language);
+      }
+      rows.push({ kind, name: peer.name, value });
+    }
+  }
+  return rows.sort(
+    (a, b) => SEVERITY.indexOf(a.kind) - SEVERITY.indexOf(b.kind) || a.name.localeCompare(b.name),
+  );
+}
+
+/** A rate tile: kB/s, or MB/s from 1000 kB/s. */
+function rateTile(kbps, label, icon, language) {
+  const fast = kbps >= 1000;
+  return {
+    type: 'value',
+    value: fast ? Math.round(kbps / 100) / 10 : Math.round(kbps),
+    unit: t(fast ? TEXT.mbps : TEXT.kbps, language),
+    label: t(label, language),
+    icon,
+    color: WIDGET_COLORS.NEUTRAL,
+  };
+}
+
+async function get(hub, { settings, language }) {
+  const lang = language ?? hub.config?.language ?? 'en';
+  const show = Object.values(SHOW).includes(settings?.show) ? settings.show : SHOW.ALL;
+  if (!hub.client) {
+    return message(
+      hub.config?.invalidUrl ? CONNECTION_TEXT.invalidUrl : CONNECTION_TEXT.notConfigured,
+      lang,
+    );
+  }
+  if (!hub.local) {
+    return message(ERROR_TEXT[hub.error?.kind ?? 'unreachable'], lang, 30);
+  }
+  const folders = [...hub.folders.values()];
+  const peers = [...hub.peers.values()];
+  if (folders.length === 0 && peers.length === 0) {
+    return message(TEXT.empty, lang);
+  }
+
+  const components = [];
+  const statuses = folders.map((folder) => folderState(folder));
+  if (show !== SHOW.DEVICES && folders.length > 0) {
+    const upToDate = statuses.filter((s) => s === FOLDER_STATES.UP_TO_DATE).length;
+    const failing = statuses.some((s) => s === FOLDER_STATES.ERROR);
+    components.push({
+      type: 'value',
+      value: `${upToDate}/${folders.length}`,
+      label: t(TEXT.folders, lang),
+      icon: 'folder',
+      color: failing
+        ? WIDGET_COLORS.DANGER
+        : upToDate === folders.length
+          ? WIDGET_COLORS.SUCCESS
+          : WIDGET_COLORS.WARNING,
+    });
+  }
+  if (show !== SHOW.FOLDERS && peers.length > 0) {
+    const connected = peers.filter((peer) => peer.connected).length;
+    components.push({
+      type: 'value',
+      value: `${connected}/${peers.length}`,
+      label: t(TEXT.devices, lang),
+      icon: 'monitor',
+      color: connected === peers.length ? WIDGET_COLORS.SUCCESS : WIDGET_COLORS.WARNING,
+    });
+    const sum = (key) => peers.reduce((total, peer) => total + (peer[key] ?? 0), 0);
+    components.push(rateTile(sum('download'), TEXT.download, 'download', lang));
+    components.push(rateTile(sum('upload'), TEXT.upload, 'upload', lang));
+  }
+
+  if (hub.error) {
+    // Syncthing answered before: the rows below are its last known state.
+    components.push({ type: 'text', variant: 'body', text: t(ERROR_TEXT[hub.error.kind], lang) });
+  }
+
+  const rows = buildRows(hub, show, lang);
+  if (rows.length > 0) {
+    const shown = rows.length > MAX_ROWS ? rows.slice(0, MAX_ROWS - 1) : rows;
+    const items = shown.map((row) => ({
+      label: fit(row.name, 40),
+      value: fit(row.value, 40),
+      ...ROW_STYLE[row.kind],
+    }));
+    if (rows.length > shown.length) {
+      items.push({
+        label: t(TEXT.more, lang),
+        value: `+${rows.length - shown.length}`,
+        icon: 'more-horizontal',
+        color: WIDGET_COLORS.NEUTRAL,
+      });
+    }
+    components.push({ type: 'status', items });
+  }
+
+  if (show !== SHOW.DEVICES && folders.length > 0 && !hub.error) {
+    components.push({
+      type: 'button',
+      label: t(TEXT.rescan, lang),
+      icon: 'refresh-cw',
+      style: 'secondary',
+      action: { key: ACTIONS.RESCAN },
+    });
+    if (folders.some((folder) => !folder.paused)) {
+      components.push({
+        type: 'button',
+        label: t(TEXT.pause, lang),
+        icon: 'pause',
+        style: 'secondary',
+        action: { key: ACTIONS.PAUSE, confirm: true },
+      });
+    }
+    if (folders.some((folder) => folder.paused)) {
+      components.push({
+        type: 'button',
+        label: t(TEXT.resume, lang),
+        icon: 'play',
+        style: 'secondary',
+        action: { key: ACTIONS.RESUME },
+      });
+    }
+  }
+
+  // A sync in progress moves fast: refresh sooner.
+  const moving = statuses.some((s) => s === FOLDER_STATES.SYNCING || s === FOLDER_STATES.SCANNING);
+  return { ttl_seconds: moving || hub.error ? 30 : 60, components };
+}
+
+async function action(hub, { actionKey }) {
+  const toast = (key, count) => {
+    const text = {};
+    for (const [lang, entries] of Object.entries(TOAST_TEXT)) {
+      text[lang] = entries[key](count);
+    }
+    return { message: text };
+  };
+  const folders = hub.targetFolders();
+  switch (actionKey) {
+    case ACTIONS.RESCAN:
+      return toast('rescan', await hub.scanFolders(folders));
+    case ACTIONS.PAUSE:
+      return toast('pause', await hub.setFoldersPaused(folders, true));
+    case ACTIONS.RESUME:
+      return toast('resume', await hub.setFoldersPaused(folders, false));
+    default:
+      throw new Error(`Unknown action ${actionKey}`);
+  }
 }
 
 export const WIDGETS = {
-  [DEMO_STATUS_WIDGET]: {
-    // `settings` holds the per-instance values of the declared `settings`
-    // (none here); `language` and `units` are those of the user viewing the
-    // dashboard, for the values you format yourself. Multi-language objects
-    // (`{ en, fr }`) are picked by the core, like everywhere else.
-    async get(gladys, { config }) {
-      logger.debug(`onWidgetGet <- ${DEMO_STATUS_WIDGET}`);
-      return {
-        // Reload policy: the computed parts below only change with the
-        // config, and index.js nudges the widget on every (re)connection and
-        // config update (see refreshWidgets) — the TTL is just a safety net.
-        ttl_seconds: 300,
-        components: [
-          // Device-bound tiles: LIVE, they follow the published states over
-          // the core's real-time path. No TTL, no nudge involved.
-          {
-            type: 'value',
-            label: { en: 'Temperature', fr: 'Température' },
-            icon: 'thermometer',
-            device_feature: featureExternalId(
-              gladys,
-              config,
-              weatherStation,
-              DEVICE_FEATURE_CATEGORIES.TEMPERATURE_SENSOR,
-            ),
-          },
-          {
-            type: 'value',
-            label: { en: 'Office plug', fr: 'Prise du bureau' },
-            icon: 'zap',
-            device_feature: featureExternalId(
-              gladys,
-              config,
-              plug,
-              DEVICE_FEATURE_CATEGORIES.ENERGY_SENSOR,
-            ),
-          },
-          // Computed rows: what the integration knows that no device feature
-          // carries. Served from the core cache until the TTL or a nudge.
-          {
-            type: 'status',
-            items: [
-              {
-                label: { en: 'Plug connection', fr: 'Connexion de la prise' },
-                icon: 'wifi',
-                ...plugConnectionStatus(gladys, config),
-              },
-              {
-                label: { en: 'Observed location', fr: 'Position observée' },
-                icon: 'map-pin',
-                value: `${config.latitude.toFixed(2)}, ${config.longitude.toFixed(2)}`,
-                color: WIDGET_COLORS.NEUTRAL,
-              },
-            ],
-          },
-          // `params` are declared HERE and sent back as-is: the handler never
-          // receives user input (a dashboard can hang on a public wall).
-          {
-            type: 'button',
-            label: { en: 'Identify the light', fr: 'Identifier la lampe' },
-            icon: 'eye',
-            style: 'secondary',
-            action: {
-              key: DEMO_STATUS_ACTIONS.IDENTIFY_LIGHT,
-              params: { device: light.deviceExternalId(gladys) },
-            },
-          },
-        ],
-      };
-    },
-
-    // Resolve an optional toast (string or multi-language object, ≤ 200
-    // characters). After a successful action the core drops the cached
-    // content and every open dashboard refetches it: no nudge needed.
-    async action(gladys, { actionKey, params, config }) {
-      logger.info(`onWidgetAction <- ${DEMO_STATUS_WIDGET}.${actionKey}`);
-      if (actionKey === DEMO_STATUS_ACTIONS.IDENTIFY_LIGHT) {
-        return identifyDevice(gladys, params.device, config);
-      }
-      // Throwing acks the action as failed: the message reaches the user.
-      throw new Error(`Unknown widget action: ${actionKey}`);
-    },
-  },
+  [WIDGET_KEY]: { get, action },
 };
-
-/**
- * Freshness nudge: ask the core to re-pull every widget NOW instead of
- * waiting for the content TTL. Call it when you KNOW a computed content
- * changed (here: the config, which drives the plug transport and the observed
- * location) — and after every (re)connection, since the nudges are
- * fire-and-forget: rate-limited core-side to 1 per 10 s per widget, dropped
- * silently while disconnected.
- */
-export function refreshWidgets(gladys) {
-  for (const key of Object.keys(WIDGETS)) {
-    gladys.requestWidgetRefresh(key);
-  }
-}

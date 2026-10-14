@@ -1,177 +1,513 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Syncthing",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Your Syncthing folders and devices in Gladys, and scenes when a sync ends or fails.",
+    "fr": "Vos dossiers et appareils Syncthing dans Gladys, et des scènes quand une synchro finit ou échoue.",
+    "de": "Deine Syncthing-Ordner und -Geräte in Gladys, mit Szenen am Ende oder bei Fehlern einer Synchro.",
+    "es": "Sus carpetas y equipos de Syncthing en Gladys, con escenas cuando una sincronización acaba o falla."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-syncthing:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-syncthing/main/cover.png",
+  "categories": ["network"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your Syncthing",
+        "fr": "Votre Syncthing",
+        "de": "Dein Syncthing",
+        "es": "Su Syncthing"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "In Syncthing, open Actions → Settings → GUI: copy the API key, and set the GUI listen address to 0.0.0.0:8384 so that Gladys can reach it. Then add the folders and devices to follow from the Discover tab: the scene triggers work for every folder, added or not.",
+        "fr": "Dans Syncthing, ouvrez Actions → Configuration → GUI : copiez la clé d'API, et réglez l'adresse d'écoute de l'interface sur 0.0.0.0:8384 pour que Gladys puisse la joindre. Ajoutez ensuite les dossiers et appareils à suivre depuis l'onglet Découverte : les déclencheurs de scène valent pour tous les dossiers, ajoutés ou non.",
+        "de": "Öffne in Syncthing Aktionen → Einstellungen → GUI: Kopiere den API-Schlüssel und setze die Adresse der Oberfläche auf 0.0.0.0:8384, damit Gladys sie erreicht. Lege dann die Ordner und Geräte, denen du folgen willst, im Tab „Entdecken“ an: Die Szenen-Auslöser gelten für alle Ordner, angelegt oder nicht.",
+        "es": "En Syncthing, abra Acciones → Ajustes → GUI: copie la clave API y ponga la dirección de escucha de la interfaz en 0.0.0.0:8384 para que Gladys pueda llegar a ella. Después, añada las carpetas y equipos que quiera seguir desde la pestaña Descubrir: los disparadores de escena valen para todas las carpetas, añadidas o no."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-syncthing/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
+        },
+        {
+          "url": "https://docs.syncthing.net/users/guisettings.html",
+          "label": {
+            "en": "Syncthing GUI settings",
+            "fr": "Réglages de l'interface Syncthing",
+            "de": "GUI-Einstellungen von Syncthing",
+            "es": "Ajustes de la interfaz de Syncthing"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "url",
+      "type": "string",
+      "label": {
+        "en": "Syncthing address",
+        "fr": "Adresse de Syncthing",
+        "de": "Adresse von Syncthing",
+        "es": "Dirección de Syncthing"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "description": {
+        "en": "The address of the Syncthing web interface, port included (8384 by default).",
+        "fr": "L'adresse de l'interface web de Syncthing, port compris (8384 par défaut).",
+        "de": "Die Adresse der Weboberfläche von Syncthing, mit Port (standardmäßig 8384).",
+        "es": "La dirección de la interfaz web de Syncthing, puerto incluido (8384 por defecto)."
+      },
+      "placeholder": {
+        "en": "e.g. http://192.168.1.10:8384",
+        "fr": "ex. http://192.168.1.10:8384",
+        "de": "z. B. http://192.168.1.10:8384",
+        "es": "p. ej. http://192.168.1.10:8384"
+      },
+      "required": true
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "api_key",
+      "type": "secret",
+      "label": {
+        "en": "API key",
+        "fr": "Clé d'API",
+        "de": "API-Schlüssel",
+        "es": "Clave API"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "description": {
+        "en": "Actions → Settings → GUI → API Key in Syncthing.",
+        "fr": "Actions → Configuration → GUI → Clé d'API dans Syncthing.",
+        "de": "Aktionen → Einstellungen → GUI → API-Schlüssel in Syncthing.",
+        "es": "Acciones → Ajustes → GUI → Clave API en Syncthing."
+      },
+      "required": true
     },
     {
-      "key": "unit",
+      "key": "allow_self_signed",
+      "type": "boolean",
+      "label": {
+        "en": "Accept self-signed certificates",
+        "fr": "Accepter les certificats auto-signés",
+        "de": "Selbstsignierte Zertifikate akzeptieren",
+        "es": "Aceptar certificados autofirmados"
+      },
+      "description": {
+        "en": "Only for an https:// address with the certificate Syncthing generated itself.",
+        "fr": "Seulement pour une adresse en https:// avec le certificat généré par Syncthing.",
+        "de": "Nur für eine https://-Adresse mit dem Zertifikat, das Syncthing selbst erzeugt hat.",
+        "es": "Solo para una dirección https:// con el certificado que Syncthing generó."
+      },
+      "required": false,
+      "default": false
+    },
+    {
+      "key": "language",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
-    },
-    {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "label": {
+        "en": "Language of the names",
+        "fr": "Langue des noms",
+        "de": "Sprache der Namen",
+        "es": "Idioma de los nombres"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Feature names and folder states, as Gladys shows them.",
+        "fr": "Noms des fonctionnalités et états des dossiers, tels que Gladys les affiche.",
+        "de": "Namen der Funktionen und Ordnerstatus, wie Gladys sie anzeigt.",
+        "es": "Nombres de las funciones y estados de las carpetas, tal como Gladys los muestra."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "folder_synced",
+      "label": {
+        "en": "Folder synced",
+        "fr": "Dossier synchronisé",
+        "de": "Ordner synchronisiert",
+        "es": "Carpeta sincronizada"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A folder received what it was missing and is up to date again.",
+        "fr": "Un dossier a reçu ce qui lui manquait et est de nouveau à jour.",
+        "de": "Ein Ordner hat empfangen, was ihm fehlte, und ist wieder aktuell.",
+        "es": "Una carpeta recibió lo que le faltaba y vuelve a estar actualizada."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "folder",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "label": {
+            "en": "Folder",
+            "fr": "Dossier",
+            "de": "Ordner",
+            "es": "Carpeta"
+          },
+          "description": {
+            "en": "Empty: any folder, added to Gladys or not.",
+            "fr": "Vide : n'importe quel dossier, ajouté à Gladys ou non.",
+            "de": "Leer: jeder Ordner, in Gladys angelegt oder nicht.",
+            "es": "Vacío: cualquier carpeta, añadida a Gladys o no."
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "folder_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Folder name",
+            "fr": "Nom du dossier",
+            "de": "Ordnername",
+            "es": "Nombre de la carpeta"
+          }
+        },
+        {
+          "key": "files",
+          "type": "number",
+          "label": {
+            "en": "Files received",
+            "fr": "Fichiers reçus",
+            "de": "Empfangene Dateien",
+            "es": "Archivos recibidos"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sync_error",
+      "label": {
+        "en": "Sync error",
+        "fr": "Erreur de synchronisation",
+        "de": "Synchronisationsfehler",
+        "es": "Error de sincronización"
+      },
+      "description": {
+        "en": "A folder stopped on an error, or some of its files failed to sync.",
+        "fr": "Un dossier s'est arrêté sur une erreur, ou certains de ses fichiers n'ont pas pu être synchronisés.",
+        "de": "Ein Ordner wurde durch einen Fehler gestoppt, oder einige seiner Dateien ließen sich nicht synchronisieren.",
+        "es": "Una carpeta se detuvo por un error, o algunos de sus archivos no se pudieron sincronizar."
+      },
+      "fields": [
+        {
+          "key": "folder",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Folder",
+            "fr": "Dossier",
+            "de": "Ordner",
+            "es": "Carpeta"
+          },
+          "description": {
+            "en": "Empty: any folder, added to Gladys or not.",
+            "fr": "Vide : n'importe quel dossier, ajouté à Gladys ou non.",
+            "de": "Leer: jeder Ordner, in Gladys angelegt oder nicht.",
+            "es": "Vacío: cualquier carpeta, añadida a Gladys o no."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "folder_name",
+          "type": "string",
+          "label": {
+            "en": "Folder name",
+            "fr": "Nom du dossier",
+            "de": "Ordnername",
+            "es": "Nombre de la carpeta"
+          }
+        },
+        {
+          "key": "errors",
+          "type": "number",
+          "label": {
+            "en": "Failed items",
+            "fr": "Éléments en échec",
+            "de": "Fehlgeschlagene Elemente",
+            "es": "Elementos fallidos"
+          }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": {
+            "en": "Error message",
+            "fr": "Message d'erreur",
+            "de": "Fehlermeldung",
+            "es": "Mensaje de error"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "pause_folders",
+      "label": {
+        "en": "Pause folders",
+        "fr": "Mettre des dossiers en pause",
+        "de": "Ordner pausieren",
+        "es": "Pausar carpetas"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "Pause one folder, or every folder (a video call, a metered connection).",
+        "fr": "Met en pause un dossier, ou tous les dossiers (visio, connexion limitée).",
+        "de": "Pausiert einen Ordner oder alle Ordner (Videoanruf, begrenzte Verbindung).",
+        "es": "Pausa una carpeta, o todas (videollamada, conexión limitada)."
+      },
+      "timeout_seconds": 30,
       "fields": [
         {
-          "key": "device",
+          "key": "folder",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "label": {
+            "en": "Folder",
+            "fr": "Dossier",
+            "de": "Ordner",
+            "es": "Carpeta"
+          },
+          "description": {
+            "en": "Empty: every folder of Syncthing.",
+            "fr": "Vide : tous les dossiers de Syncthing.",
+            "de": "Leer: alle Ordner von Syncthing.",
+            "es": "Vacío: todas las carpetas de Syncthing."
+          },
+          "required": false
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Folders paused",
+            "fr": "Dossiers mis en pause",
+            "de": "Pausierte Ordner",
+            "es": "Carpetas pausadas"
+          }
+        }
+      ]
+    },
+    {
+      "key": "resume_folders",
+      "label": {
+        "en": "Resume folders",
+        "fr": "Reprendre des dossiers",
+        "de": "Ordner fortsetzen",
+        "es": "Reanudar carpetas"
+      },
+      "description": {
+        "en": "Resume one paused folder, or every paused folder.",
+        "fr": "Reprend un dossier en pause, ou tous les dossiers en pause.",
+        "de": "Setzt einen pausierten Ordner oder alle pausierten Ordner fort.",
+        "es": "Reanuda una carpeta en pausa, o todas las carpetas en pausa."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "folder",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Folder",
+            "fr": "Dossier",
+            "de": "Ordner",
+            "es": "Carpeta"
+          },
+          "description": {
+            "en": "Empty: every folder of Syncthing.",
+            "fr": "Vide : tous les dossiers de Syncthing.",
+            "de": "Leer: alle Ordner von Syncthing.",
+            "es": "Vacío: todas las carpetas de Syncthing."
+          },
+          "required": false
+        }
+      ],
+      "outputs": [
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Folders resumed",
+            "fr": "Dossiers repris",
+            "de": "Fortgesetzte Ordner",
+            "es": "Carpetas reanudadas"
+          }
+        }
+      ]
+    },
+    {
+      "key": "scan_folders",
+      "label": {
+        "en": "Rescan folders",
+        "fr": "Analyser des dossiers",
+        "de": "Ordner neu scannen",
+        "es": "Analizar carpetas"
+      },
+      "description": {
+        "en": "Look for changes now, e.g. after a backup wrote into a folder.",
+        "fr": "Cherche les changements maintenant, par ex. après une sauvegarde écrite dans un dossier.",
+        "de": "Sucht jetzt nach Änderungen, z. B. nachdem eine Sicherung in einen Ordner geschrieben hat.",
+        "es": "Busca cambios ahora, p. ej. después de que una copia de seguridad escribiera en una carpeta."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "folder",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Folder",
+            "fr": "Dossier",
+            "de": "Ordner",
+            "es": "Carpeta"
+          },
+          "description": {
+            "en": "Empty: every folder of Syncthing.",
+            "fr": "Vide : tous les dossiers de Syncthing.",
+            "de": "Leer: alle Ordner von Syncthing.",
+            "es": "Vacío: todas las carpetas de Syncthing."
+          },
+          "required": false
+        }
+      ],
+      "outputs": [
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Folders rescanned",
+            "fr": "Dossiers analysés",
+            "de": "Neu gescannte Ordner",
+            "es": "Carpetas analizadas"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "syncthing",
+      "label": {
+        "en": "Syncthing",
+        "fr": "Syncthing",
+        "de": "Syncthing",
+        "es": "Syncthing"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Folders and devices with their state, transfer rates, rescan and pause buttons.",
+        "fr": "Dossiers et appareils avec leur état, débits, boutons d'analyse et de pause.",
+        "de": "Ordner und Geräte mit Status, Übertragungsraten, Tasten zum Scannen und Pausieren.",
+        "es": "Carpetas y equipos con su estado, velocidades, botones de análisis y de pausa."
+      },
+      "icon": "refresh-cw",
+      "settings": [
+        {
+          "key": "show",
+          "type": "select",
+          "label": {
+            "en": "Show",
+            "fr": "Afficher",
+            "de": "Anzeigen",
+            "es": "Mostrar"
+          },
+          "required": false,
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": {
+                "en": "Folders and devices",
+                "fr": "Dossiers et appareils",
+                "de": "Ordner und Geräte",
+                "es": "Carpetas y equipos"
+              }
+            },
+            {
+              "value": "folders",
+              "label": {
+                "en": "Folders only",
+                "fr": "Dossiers seulement",
+                "de": "Nur Ordner",
+                "es": "Solo carpetas"
+              }
+            },
+            {
+              "value": "devices",
+              "label": {
+                "en": "Devices only",
+                "fr": "Appareils seulement",
+                "de": "Nur Geräte",
+                "es": "Solo equipos"
+              }
+            }
+          ]
+        }
+      ],
+      "action_timeout_seconds": 30
     }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "alloc": 22218664,
+  "cpuPercent": 0,
+  "goroutines": 76,
+  "guiAddressOverridden": true,
+  "guiAddressUsed": "127.0.0.1:8384",
+  "myID": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ",
+  "pathSeparator": "/",
+  "startTime": "2026-10-14T19:14:53Z",
+  "sys": 53761288,
+  "tilde": "/home/user",
+  "uptime": 1073,
+  "urVersionMax": 3
+}

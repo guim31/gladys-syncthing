@@ -1,0 +1,32 @@
+{
+  "connections": {
+    "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ": {
+      "at": "2026-10-14T19:30:29Z",
+      "inBytesTotal": 32392,
+      "outBytesTotal": 30012964,
+      "startedAt": "2026-10-14T19:18:29Z",
+      "connected": true,
+      "paused": false,
+      "clientVersion": "v1.30.0",
+      "address": "192.0.2.20:22000",
+      "type": "tcp-client",
+      "isLocal": true,
+      "crypto": "TLS1.3-TLS_AES_128_GCM_SHA256",
+      "primary": {
+        "at": "2026-10-14T19:30:29Z",
+        "inBytesTotal": 32392,
+        "outBytesTotal": 30012964,
+        "startedAt": "2026-10-14T19:18:29Z",
+        "address": "192.0.2.20:22000",
+        "type": "tcp-client",
+        "isLocal": true,
+        "crypto": "TLS1.3-TLS_AES_128_GCM_SHA256"
+      }
+    }
+  },
+  "total": {
+    "at": "2026-10-14T19:30:29Z",
+    "inBytesTotal": 97018,
+    "outBytesTotal": 91039802
+  }
+}

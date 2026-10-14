@@ -1,0 +1,16 @@
+{
+  "arch": "amd64",
+  "codename": "Hafnium Hornet",
+  "container": false,
+  "date": "2026-10-05T04:03:55Z",
+  "extra": "",
+  "isBeta": false,
+  "isCandidate": false,
+  "isRelease": true,
+  "longVersion": "syncthing v2.1.6 \"Hafnium Hornet\" (go1.27.1 linux-amd64) builder@github.syncthing.net 2026-10-05 04:03:55 UTC [stnoupgrade]",
+  "os": "linux",
+  "stamp": "1791173035",
+  "tags": ["stnoupgrade"],
+  "user": "builder",
+  "version": "v2.1.6"
+}

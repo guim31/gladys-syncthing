@@ -1,93 +1,75 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
-import { DEVICE_BLUEPRINTS } from '../src/devices/index.js';
-import { MOTION_DETECTED_TRIGGER, motionSensor } from '../src/devices/motionSensor.js';
-import { SCENE_ACTIONS } from '../src/scenes.js';
-import { normalizeConfig } from '../src/config.js';
+import { FakeSyncthing, createWorld, settle } from './helpers/world.js';
 
-const manifest = JSON.parse(
-  await readFile(new URL('../gladys-assistant-integration.json', import.meta.url), 'utf8'),
-);
-const config = normalizeConfig();
+const PHOTOS = 'photos-x7k2';
 
-const declarationOf = (list, key) => manifest[list].find((entry) => entry.key === key);
-const keysOf = (list) => (list ?? []).map((entry) => entry.key);
-const deviceIdOf = (gladys, key) =>
-  DEVICE_BLUEPRINTS.find((bp) => bp.key === key).deviceExternalId(gladys);
+const writes = (syncthing) =>
+  syncthing.calls.filter((c) => c.method !== 'GET').map((c) => [c.method, c.path, c.body]);
 
-// Let the async interval callback run to completion.
-const flush = () => new Promise((resolve) => setImmediate(resolve));
+test('"Pause folders" pauses every folder, or the one chosen; "Resume folders" undoes it', async (t) => {
+  const world = await createWorld({ syncthing: new FakeSyncthing({ version: 'v1.30.0' }) });
+  t.after(() => world.stop());
 
-test('the motion sensor fires one motion_detected event per detection, none on the clear', async (t) => {
-  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
-  const gladys = createFakeGladys();
-  const stopPush = motionSensor.startPush(gladys, config);
-  try {
-    t.mock.timers.tick(60_000);
-    await flush();
-    assert.equal(gladys.fake.sceneEvents.length, 1, 'one detection, one event');
-    assert.equal(gladys.fake.sceneEvents[0].key, MOTION_DETECTED_TRIGGER);
-    assert.equal(gladys.fake.states.at(-1).state, 1, 'the state is still published');
-
-    t.mock.timers.tick(10_000);
-    await flush();
-    assert.equal(gladys.fake.states.at(-1).state, 0, 'the detection is cleared');
-    assert.equal(gladys.fake.sceneEvents.length, 1, 'the clear fires no event');
-  } finally {
-    stopPush();
-  }
-});
-
-test('motion_detected data only carries keys the trigger declares', async (t) => {
-  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
-  const gladys = createFakeGladys();
-  const stopPush = motionSensor.startPush(gladys, config);
-  try {
-    t.mock.timers.tick(60_000);
-    await flush();
-  } finally {
-    stopPush();
-  }
-  const [{ data }] = gladys.fake.sceneEvents;
-  const trigger = declarationOf('scene_triggers', MOTION_DETECTED_TRIGGER);
-  // The core keeps the `fields` keys (filters) and the `variables` keys
-  // (exposed to the scene): any other key would be silently dropped.
-  const declared = [...keysOf(trigger.fields), ...keysOf(trigger.variables)];
-  for (const [key, value] of Object.entries(data)) {
-    assert.ok(declared.includes(key), `data.${key} is not declared, the core would drop it`);
-    assert.ok(value === null || typeof value !== 'object', `data.${key} must be a primitive`);
-  }
-  // A `"source": "devices"` filter stores a device external_id.
-  assert.equal(data.device, deviceIdOf(gladys, 'motion-sensor'));
-  const targets = trigger.fields.find((field) => field.key === 'target').options;
-  assert.ok(
-    targets.some((option) => option.value === data.target),
-    `data.target "${data.target}" must be one of the filter options`,
+  let ack = await world.fake.sceneAction('pause_folders', { folder: world.folder(PHOTOS).device });
+  assert.deepEqual(ack, { success: true, data: { outputs: { count: 1 } } });
+  ack = await world.fake.sceneAction('pause_folders', {});
+  assert.deepEqual(ack.data.outputs, { count: 2 }, 'the two others');
+  ack = await world.fake.sceneAction('pause_folders', {});
+  assert.deepEqual(ack.data.outputs, { count: 0 }, 'already paused');
+  ack = await world.fake.sceneAction('resume_folders', {});
+  assert.deepEqual(ack.data.outputs, { count: 3 });
+  await settle();
+  assert.deepEqual(
+    writes(world.syncthing).map(([method, path, body]) => `${method} ${path} ${body.paused}`),
+    [
+      `PATCH /rest/config/folders/${PHOTOS} true`,
+      'PATCH /rest/config/folders/default true',
+      'PATCH /rest/config/folders/docs true',
+      'PATCH /rest/config/folders/default false',
+      'PATCH /rest/config/folders/docs false',
+      `PATCH /rest/config/folders/${PHOTOS} false`,
+    ],
   );
 });
 
-test('identify_device signals the chosen device and returns the declared outputs', async () => {
-  const gladys = createFakeGladys();
-  const outputs = await SCENE_ACTIONS.identify_device(gladys, {
-    fields: { device: deviceIdOf(gladys, 'light') },
-    config,
+test('"Rescan folders" asks Syncthing to scan, and leaves a long scan running', async (t) => {
+  const world = await createWorld({
+    syncthing: new FakeSyncthing({ version: 'v2.1.6' }),
+    timings: { scanWaitMs: 20 },
   });
-  assert.deepEqual(outputs, { signalled: true });
-  const declared = keysOf(declarationOf('scene_actions', 'identify_device').outputs);
-  for (const key of Object.keys(outputs)) {
-    assert.ok(declared.includes(key), `output "${key}" is not declared, the core would drop it`);
-  }
+  t.after(() => world.stop());
+  let ack = await world.fake.sceneAction('scan_folders', { folder: world.folder('docs').device });
+  assert.deepEqual(ack.data.outputs, { count: 1 });
+  ack = await world.fake.sceneAction('scan_folders', {});
+  assert.deepEqual(ack.data.outputs, { count: 2 });
+  assert.deepEqual(writes(world.syncthing), [
+    ['POST', '/rest/db/scan?folder=docs', undefined],
+    ['POST', '/rest/db/scan?folder=docs', undefined],
+    ['POST', `/rest/db/scan?folder=${PHOTOS}`, undefined],
+  ]);
+  // Syncthing answers once the scan is over: a long one is left running.
+  world.syncthing.scanHang = true;
+  ack = await world.fake.sceneAction('scan_folders', {});
+  assert.deepEqual(ack.data.outputs, { count: 2 });
 });
 
-test('identify_device reports a device that cannot signal itself through its output', async () => {
-  // Not a failure: a scene action is never a condition, the scene author
-  // gates the following actions on the output instead.
-  const gladys = createFakeGladys();
-  const outputs = await SCENE_ACTIONS.identify_device(gladys, {
-    fields: { device: deviceIdOf(gladys, 'weather-station') },
-    config,
-  });
-  assert.deepEqual(outputs, { signalled: false });
+test('the scene actions say why they cannot run', async (t) => {
+  const world = await createWorld({ syncthing: new FakeSyncthing({ version: 'v2.1.6' }) });
+  t.after(() => world.stop());
+  const peer = world.peer(world.syncthing.remoteIds[0]).device;
+  let ack = await world.fake.sceneAction('pause_folders', { folder: peer });
+  assert.equal(ack.success, false);
+  assert.equal(ack.error, 'This device is not a Syncthing folder.');
+
+  world.syncthing.setFailure('down');
+  await world.hub.refresh();
+  ack = await world.fake.sceneAction('scan_folders', {});
+  assert.equal(ack.success, false);
+  assert.match(ack.error, /^Syncthing does not answer/);
+
+  const unconfigured = await createWorld({ config: { language: 'fr' } });
+  t.after(() => unconfigured.stop());
+  ack = await unconfigured.fake.sceneAction('resume_folders', {});
+  assert.equal(ack.error, "Syncthing n'est pas configuré.");
 });

@@ -1,0 +1,32 @@
+{
+  "connections": {
+    "P56IOI7-MZJNU2Y-IQGDREY-DM2MGTI-MGL3BXN-PQ6W5BM-TBBZ4TJ-XZWICQ2": {
+      "at": "2026-10-14T19:32:46Z",
+      "inBytesTotal": 30513349,
+      "outBytesTotal": 33059,
+      "startedAt": "2026-10-14T19:18:29Z",
+      "connected": true,
+      "paused": false,
+      "clientVersion": "v2.1.6",
+      "address": "192.0.2.10:22000",
+      "type": "tcp-server",
+      "isLocal": true,
+      "crypto": "TLS1.3-TLS_AES_128_GCM_SHA256",
+      "primary": {
+        "at": "2026-10-14T19:32:46Z",
+        "inBytesTotal": 30513349,
+        "outBytesTotal": 33059,
+        "startedAt": "2026-10-14T19:18:29Z",
+        "address": "192.0.2.10:22000",
+        "type": "tcp-server",
+        "isLocal": true,
+        "crypto": "TLS1.3-TLS_AES_128_GCM_SHA256"
+      }
+    }
+  },
+  "total": {
+    "at": "2026-10-14T19:32:46Z",
+    "inBytesTotal": 91540187,
+    "outBytesTotal": 97685
+  }
+}

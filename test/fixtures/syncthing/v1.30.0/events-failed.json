@@ -1,0 +1,142 @@
+[
+  {
+    "id": 204,
+    "globalID": 213,
+    "time": "2026-10-14T19:31:16.11397295Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 25.113971957,
+      "folder": "photos-x7k2",
+      "from": "idle",
+      "to": "sync-waiting"
+    }
+  },
+  {
+    "id": 205,
+    "globalID": 214,
+    "time": "2026-10-14T19:31:16.114036317Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.114036037,
+      "folder": "photos-x7k2",
+      "from": "sync-waiting",
+      "to": "sync-preparing"
+    }
+  },
+  {
+    "id": 207,
+    "globalID": 216,
+    "time": "2026-10-14T19:31:16.114192361Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": "opening temp file: open /home/user/Sync/photos/2026/.syncthing.IMG_0100.jpg.tmp: operation not permitted",
+      "folder": "photos-x7k2",
+      "item": "2026/IMG_0100.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 209,
+    "globalID": 218,
+    "time": "2026-10-14T19:31:16.114619502Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": "opening temp file: open /home/user/Sync/photos/2026/.syncthing.IMG_0100.jpg.tmp: operation not permitted",
+      "folder": "photos-x7k2",
+      "item": "2026/IMG_0100.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 211,
+    "globalID": 220,
+    "time": "2026-10-14T19:31:16.114722519Z",
+    "type": "ItemFinished",
+    "data": {
+      "action": "update",
+      "error": "opening temp file: open /home/user/Sync/photos/2026/.syncthing.IMG_0100.jpg.tmp: operation not permitted",
+      "folder": "photos-x7k2",
+      "item": "2026/IMG_0100.jpg",
+      "type": "file"
+    }
+  },
+  {
+    "id": 212,
+    "globalID": 221,
+    "time": "2026-10-14T19:31:16.114759492Z",
+    "type": "FolderErrors",
+    "data": {
+      "errors": [
+        {
+          "path": "2026/IMG_0100.jpg",
+          "error": "syncing: finishing: opening temp file: open /home/user/Sync/photos/2026/.syncthing.IMG_0100.jpg.tmp: operation not permitted"
+        }
+      ],
+      "folder": "photos-x7k2"
+    }
+  },
+  {
+    "id": 213,
+    "globalID": 222,
+    "time": "2026-10-14T19:31:16.114762688Z",
+    "type": "StateChanged",
+    "data": {
+      "duration": 0.114761982,
+      "folder": "photos-x7k2",
+      "from": "sync-preparing",
+      "to": "idle"
+    }
+  },
+  {
+    "id": 214,
+    "globalID": 223,
+    "time": "2026-10-14T19:31:16.114802234Z",
+    "type": "FolderSummary",
+    "data": {
+      "folder": "photos-x7k2",
+      "summary": {
+        "errors": 1,
+        "pullErrors": 1,
+        "invalid": "",
+        "globalFiles": 8,
+        "globalDirectories": 2,
+        "globalSymlinks": 0,
+        "globalDeleted": 0,
+        "globalBytes": 91500264,
+        "globalTotalItems": 10,
+        "localFiles": 7,
+        "localDirectories": 2,
+        "localSymlinks": 0,
+        "localDeleted": 0,
+        "localBytes": 91000264,
+        "localTotalItems": 9,
+        "needFiles": 1,
+        "needDirectories": 0,
+        "needSymlinks": 0,
+        "needDeletes": 0,
+        "needBytes": 500000,
+        "needTotalItems": 1,
+        "receiveOnlyChangedFiles": 0,
+        "receiveOnlyChangedDirectories": 0,
+        "receiveOnlyChangedSymlinks": 0,
+        "receiveOnlyChangedDeletes": 0,
+        "receiveOnlyChangedBytes": 0,
+        "receiveOnlyTotalItems": 0,
+        "inSyncFiles": 7,
+        "inSyncBytes": 91000264,
+        "state": "idle",
+        "stateChanged": "2026-10-14T19:31:16Z",
+        "error": "",
+        "version": 9,
+        "sequence": 9,
+        "remoteSequence": {
+          "P56IOI7-MZJNU2Y-IQGDREY-DM2MGTI-MGL3BXN-PQ6W5BM-TBBZ4TJ-XZWICQ2": 19
+        },
+        "ignorePatterns": false,
+        "watchError": ""
+      }
+    }
+  }
+]

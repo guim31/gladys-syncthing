@@ -1,0 +1,126 @@
+[
+  {
+    "id": 184,
+    "globalID": 194,
+    "time": "2026-10-14T19:32:46.846456076Z",
+    "type": "DeviceDisconnected",
+    "data": {
+      "error": "reading length: EOF",
+      "id": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ"
+    }
+  },
+  {
+    "id": 185,
+    "globalID": 195,
+    "time": "2026-10-14T19:32:50.365366695Z",
+    "type": "DeviceConnected",
+    "data": {
+      "addr": "192.0.2.20:22000",
+      "clientName": "syncthing",
+      "clientVersion": "v1.30.0",
+      "deviceName": "laptop",
+      "id": "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ",
+      "type": "tcp-server"
+    }
+  },
+  {
+    "id": 187,
+    "globalID": 197,
+    "time": "2026-10-14T19:32:51.52362917Z",
+    "type": "FolderSummary",
+    "data": {
+      "folder": "docs",
+      "summary": {
+        "errors": 0,
+        "pullErrors": 0,
+        "invalid": "",
+        "globalFiles": 0,
+        "globalDirectories": 0,
+        "globalSymlinks": 0,
+        "globalDeleted": 0,
+        "globalBytes": 0,
+        "globalTotalItems": 0,
+        "localFiles": 0,
+        "localDirectories": 0,
+        "localSymlinks": 0,
+        "localDeleted": 0,
+        "localBytes": 0,
+        "localTotalItems": 0,
+        "needFiles": 0,
+        "needDirectories": 0,
+        "needSymlinks": 0,
+        "needDeletes": 0,
+        "needBytes": 0,
+        "needTotalItems": 0,
+        "receiveOnlyChangedFiles": 0,
+        "receiveOnlyChangedDirectories": 0,
+        "receiveOnlyChangedSymlinks": 0,
+        "receiveOnlyChangedDeletes": 0,
+        "receiveOnlyChangedBytes": 0,
+        "receiveOnlyTotalItems": 0,
+        "inSyncFiles": 0,
+        "inSyncBytes": 0,
+        "state": "idle",
+        "stateChanged": "2026-10-14T19:15:09Z",
+        "error": "",
+        "version": 0,
+        "sequence": 0,
+        "remoteSequence": {
+          "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ": 0
+        },
+        "ignorePatterns": false,
+        "watchError": ""
+      }
+    }
+  },
+  {
+    "id": 189,
+    "globalID": 199,
+    "time": "2026-10-14T19:32:51.52424887Z",
+    "type": "FolderSummary",
+    "data": {
+      "folder": "photos-x7k2",
+      "summary": {
+        "errors": 0,
+        "pullErrors": 0,
+        "invalid": "",
+        "globalFiles": 8,
+        "globalDirectories": 2,
+        "globalSymlinks": 0,
+        "globalDeleted": 0,
+        "globalBytes": 91500008,
+        "globalTotalItems": 10,
+        "localFiles": 8,
+        "localDirectories": 2,
+        "localSymlinks": 0,
+        "localDeleted": 0,
+        "localBytes": 91500008,
+        "localTotalItems": 10,
+        "needFiles": 0,
+        "needDirectories": 0,
+        "needSymlinks": 0,
+        "needDeletes": 0,
+        "needBytes": 0,
+        "needTotalItems": 0,
+        "receiveOnlyChangedFiles": 0,
+        "receiveOnlyChangedDirectories": 0,
+        "receiveOnlyChangedSymlinks": 0,
+        "receiveOnlyChangedDeletes": 0,
+        "receiveOnlyChangedBytes": 0,
+        "receiveOnlyTotalItems": 0,
+        "inSyncFiles": 8,
+        "inSyncBytes": 91500008,
+        "state": "idle",
+        "stateChanged": "2026-10-14T19:32:43Z",
+        "error": "",
+        "version": 19,
+        "sequence": 19,
+        "remoteSequence": {
+          "MFZWI3D-BONSGYC-YLTMRWG-C43ENR5-QXGZDMM-FZWI3DP-BONSGYC-YLTMRWQ": 10
+        },
+        "ignorePatterns": false,
+        "watchError": ""
+      }
+    }
+  }
+]
