@@ -25,10 +25,10 @@
         "es": "Su Syncthing"
       },
       "description": {
-        "en": "In Syncthing, open Actions → Settings → GUI: copy the API key, and set the GUI listen address to 0.0.0.0:8384 so that Gladys can reach it. Then add the folders and devices to follow from the Discover tab: the scene triggers work for every folder, added or not.",
-        "fr": "Dans Syncthing, ouvrez Actions → Configuration → GUI : copiez la clé d'API, et réglez l'adresse d'écoute de l'interface sur 0.0.0.0:8384 pour que Gladys puisse la joindre. Ajoutez ensuite les dossiers et appareils à suivre depuis l'onglet Découverte : les déclencheurs de scène valent pour tous les dossiers, ajoutés ou non.",
-        "de": "Öffne in Syncthing Aktionen → Einstellungen → GUI: Kopiere den API-Schlüssel und setze die Adresse der Oberfläche auf 0.0.0.0:8384, damit Gladys sie erreicht. Lege dann die Ordner und Geräte, denen du folgen willst, im Tab „Entdecken“ an: Die Szenen-Auslöser gelten für alle Ordner, angelegt oder nicht.",
-        "es": "En Syncthing, abra Acciones → Ajustes → GUI: copie la clave API y ponga la dirección de escucha de la interfaz en 0.0.0.0:8384 para que Gladys pueda llegar a ella. Después, añada las carpetas y equipos que quiera seguir desde la pestaña Descubrir: los disparadores de escena valen para todas las carpetas, añadidas o no."
+        "en": "In Syncthing, open Actions → Settings → GUI: copy the API key and set the GUI listen address to 0.0.0.0:8384 so that Gladys can reach it. Then add the folders and devices to follow from the Discover tab.",
+        "fr": "Dans Syncthing, ouvrez Actions → Configuration → GUI : copiez la clé d'API et réglez l'adresse d'écoute sur 0.0.0.0:8384 pour que Gladys la joigne. Ajoutez ensuite les dossiers et appareils à suivre depuis l'onglet Découverte.",
+        "de": "Öffne in Syncthing Aktionen → Einstellungen → GUI: Kopiere den API-Schlüssel und setze die GUI-Adresse auf 0.0.0.0:8384, damit Gladys sie erreicht. Lege dann die Ordner und Geräte, denen du folgen willst, im Tab „Entdecken“ an.",
+        "es": "En Syncthing, abra Acciones → Ajustes → GUI: copie la clave API y ponga la dirección de escucha en 0.0.0.0:8384 para que Gladys llegue a ella. Después, añada las carpetas y equipos que quiera seguir desde la pestaña Descubrir."
       },
       "links": [
         {

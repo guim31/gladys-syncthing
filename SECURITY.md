@@ -30,6 +30,28 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- **Secrets**: the API key of Syncthing is a `secret` field of the Gladys
+  configuration. The integration reads it from Gladys at startup, keeps it in
+  memory, sends it only to the Syncthing address typed in the configuration
+  (`X-API-Key` header), and never writes it to `/data` nor to the logs. The
+  `ConfigSaved` events of Syncthing carry its whole configuration, API key
+  included: their data is never logged nor kept.
+- **Stored in `/data`**: nothing. The state of the folders and devices is read
+  again from Syncthing at every start.
+- **What the key allows**: the key of the Syncthing interface gives full
+  control of Syncthing. The integration only reads, and writes on a user's
+  request what is reversible: pause or resume a folder or a device, ask for a
+  rescan. It never deletes a file, a folder or a device.
+- **Network**: requests go only to the Syncthing address of the
+  configuration, in HTTP or HTTPS. HTTPS certificates are verified unless the
+  user ticks "Accept self-signed certificates"; an address carrying a user
+  name or password is refused. The integration opens no port and calls no
+  cloud service.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+Syncthing itself (see its
+[security policy](https://github.com/syncthing/syncthing/security/policy)),
+and the devices it synchronizes with.
