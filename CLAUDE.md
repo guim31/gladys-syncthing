@@ -279,6 +279,9 @@ viennent de là (`test/fixtures/syncthing/README.md`).
   `/rest/system/connections`, deux lectures à 30 s. Le compteur repart de 0 à chaque connexion.
 - **Appareil distant** : `/rest/config/devices` inclut ce Syncthing lui-même (à exclure par `myID`) ;
   « jamais vu » vaut `1970-01-01T00:00:00Z` dans `/rest/stats/device`.
+- **HTTPS** : `--gui-address=https://…` donne un certificat auto-signé (`DEPTH_ZERO_SELF_SIGNED_CERT`),
+  et `http://` sur ce port répond 307 vers `https://`. Vérifié dans un conteneur aux contraintes du bac
+  à sable (`--read-only --cap-drop ALL --memory 256m`, réseau en pont) : 73 Mo.
 - **Syncthing 1.x crée un « Default Folder »** dans un nouveau répertoire, malgré
   `STNODEFAULTFOLDER` : le test réel le supprime.
 - **Libellés du front** : le front compare le seul `type` pour décider si une fonctionnalité est

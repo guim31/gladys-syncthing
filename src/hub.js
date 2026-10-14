@@ -974,7 +974,13 @@ export class SyncthingHub {
             ? 1
             : 0;
       const entries = [
-        [FOLDER_FEATURES.STATE, { text: pick(FOLDER_STATE_TEXT[status], language) }],
+        // A folder just resumed has no state until its summary: keep the last one.
+        [
+          FOLDER_FEATURES.STATE,
+          status === FOLDER_STATES.UNKNOWN && folder.state === null
+            ? null
+            : { text: pick(FOLDER_STATE_TEXT[status], language) },
+        ],
         [FOLDER_FEATURES.UP_TO_DATE, upToDate],
         [FOLDER_FEATURES.COMPLETION, live ? completion(folder.summary) : null],
         [FOLDER_FEATURES.REMAINING, live ? remainingMegabytes(folder.summary) : null],
@@ -1199,6 +1205,9 @@ export class SyncthingHub {
     await this.client.setFolderPaused(folder.id, paused);
     logger.info(`Folder ${folder.name} ${paused ? 'paused' : 'resumed'} from Gladys`);
     folder.paused = paused;
+    if (!paused && folder.state === '') {
+      folder.state = null; // its summary follows
+    }
     this.evaluate(folder, []);
     this.widgetDirty = true;
   }

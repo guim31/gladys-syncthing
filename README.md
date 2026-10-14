@@ -95,9 +95,17 @@ on the other side, the reverse, and 2.0.10 with 2.1.6. The answers and event
 sequences used by the unit tests were recorded on those instances
 ([`test/fixtures/syncthing/`](test/fixtures/syncthing/README.md)).
 
+The integration also ran in a container with the constraints of the Gladys
+sandbox (read-only root, every capability dropped, 256 MB, bridge network)
+against a real Syncthing 2.1.6 whose interface is in HTTPS with its own
+certificate: refused without "Accept self-signed certificates", read with it
+(73 MB of memory); `http://` on that port gives the expected "redirects"
+message.
+
 Not checked: a real Gladys (the Discovery tab, the widget and the scene
-editor rendering), Syncthing behind a reverse proxy, an HTTPS interface with
-its self-signed certificate, Syncthing on Windows or Android.
+editor rendering), the image built by the CI itself (the session could not
+pull its base image), Syncthing behind a reverse proxy, Syncthing on Windows
+or Android.
 
 ## Limitations
 

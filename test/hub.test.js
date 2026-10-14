@@ -264,6 +264,10 @@ test('the "Paused" switches pause and resume a folder and a device', async (t) =
   assert.deepEqual(await world.fake.setValue(folderDevice, pausedFeature, 0), { success: true });
   await settle();
   assert.equal(world.last(ids.feature(FOLDER_FEATURES.PAUSED)), 0);
+  assert.ok(
+    !history(world, ids.feature(FOLDER_FEATURES.STATE)).includes('Unknown'),
+    'no "Unknown" while the summary of the resumed folder comes',
+  );
 
   const remote = world.syncthing.remoteIds[0];
   const peerDevice = world.fake.discoveredDevices.find((d) => d.name === 'laptop');
