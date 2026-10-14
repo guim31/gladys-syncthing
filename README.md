@@ -103,9 +103,10 @@ certificate: refused without "Accept self-signed certificates", read with it
 message.
 
 Not checked: a real Gladys (the Discovery tab, the widget and the scene
-editor rendering), the image built by the CI itself (the session could not
-pull its base image), Syncthing behind a reverse proxy, Syncthing on Windows
-or Android.
+editor rendering), the image the CI builds run as such (the session could not
+pull its base image: the container above used the same Node 24 Alpine from
+another mirror), Syncthing behind a reverse proxy, Syncthing on Windows or
+Android.
 
 ## Limitations
 
